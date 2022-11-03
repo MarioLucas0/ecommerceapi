@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -59,15 +61,14 @@ public class ProdutoService {
 
 	}
 
-	public List<ProdutoDTO> listar() {
-		List<Produto> produtos = produtoRepository.findAll();
+	public Page<ProdutoDTO> listar(Pageable pageable) {
+		Page<Produto> produtos = produtoRepository.findAll(pageable);
 		List<ProdutoDTO> produtoDTO = new ArrayList<>();
 
 		for (Produto produto : produtos) {
 			produtoDTO.add(new ProdutoDTO(produto));
 		}
-
-		return produtoDTO;
+		return produtos.map(x -> new ProdutoDTO(x));
 	}
 
 	/*

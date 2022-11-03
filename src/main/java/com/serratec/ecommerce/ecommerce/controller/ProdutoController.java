@@ -2,11 +2,12 @@ package com.serratec.ecommerce.ecommerce.controller;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -63,8 +64,8 @@ public class ProdutoController {
       @ApiResponse(responseCode = "500", description = "Erro na aplicação")
   })
 
-  public ResponseEntity<List<ProdutoDTO>> findAll() {
-    return new ResponseEntity<>(produtoService.listar(),
+  public ResponseEntity<Page<ProdutoDTO>> findAll(Pageable pageable) {
+    return new ResponseEntity<>(produtoService.listar(pageable),
         HttpStatus.OK);
   }
 
