@@ -1,32 +1,18 @@
 package com.serratec.ecommerce.ecommerce.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.serratec.ecommerce.ecommerce.dto.CategoriaDTO;
 import com.serratec.ecommerce.ecommerce.dto.ProdutoDTO;
 import com.serratec.ecommerce.ecommerce.model.Categoria;
 import com.serratec.ecommerce.ecommerce.model.Produto;
@@ -34,7 +20,6 @@ import com.serratec.ecommerce.ecommerce.repository.CategoriaRepository;
 import com.serratec.ecommerce.ecommerce.repository.ProdutoRepository;
 import com.serratec.ecommerce.ecommerce.service.exceptions.DatabaseExcption;
 import com.serratec.ecommerce.ecommerce.service.exceptions.ResourceNotFoundException;
-import com.serratec.ecommerce.ecommerce.service.img.ImgBBDTO;
 
 @Service
 public class ProdutoService {
@@ -45,11 +30,13 @@ public class ProdutoService {
 	@Autowired
 	private CategoriaRepository categoriaRepository;
 
-	@Value("${imgbb.host.url}")
-	private String imgBBHostUrl;
-
-	@Value("${imgbb.host.key}")
-	private String imgBBHostKey;
+	/*
+	 * @Value("${imgbb.host.url}")
+	 * private String imgBBHostUrl;
+	 * 
+	 * @Value("${imgbb.host.key}")
+	 * private String imgBBHostKey;
+	 */
 
 	public ProdutoDTO findById(Long id) {
 
@@ -76,114 +63,117 @@ public class ProdutoService {
 	 * return produtoRepository.findAll();
 	 * }
 	 */
-	public ProdutoDTO insert(String produtoTxt,
-			MultipartFile file) throws IOException {
-
-		RestTemplate restTemplate = new RestTemplate();
-		String serverUrl = imgBBHostUrl + imgBBHostKey;
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-		MultiValueMap<String, String> fileMap = new LinkedMultiValueMap<>();
-
-		ContentDisposition contentDisposition = ContentDisposition
-				.builder("form-data")
-				.name("image")
-				.filename(file.getOriginalFilename())
-				.build();
-
-		fileMap.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString());
-
-		HttpEntity<byte[]> fileEntity = new HttpEntity<>(file.getBytes(), fileMap);
-
-		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-		body.add("image", fileEntity);
-
-		HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-		ResponseEntity<ImgBBDTO> response = null;
-		ImgBBDTO imgDTO = new ImgBBDTO();
-		Produto novoProduto = new Produto();
-		// ProdutoDTO productDTO = new ProdutoDTO();
-		try {
-			response = restTemplate.exchange(
-					serverUrl,
-					HttpMethod.POST,
-					requestEntity,
-					ImgBBDTO.class);
-
-			imgDTO = response.getBody();
-			System.out.println("ImgBBDTO: " + imgDTO.getData().toString());
-		} catch (HttpClientErrorException e) {
-			e.printStackTrace();
-		}
-		Produto produtoFromJson = convertProdutoFromStringJson(produtoTxt);
-		produtoFromJson.setImagemFileName(imgDTO.getData().getImage().getFilename());
-		produtoFromJson.setImagemNome(imgDTO.getData().getTitle());
-		produtoFromJson.setImagemUrl(imgDTO.getData().getUrl());
-
-		novoProduto = produtoRepository.save(produtoFromJson);
-		Categoria categoria = categoriaRepository.getReferenceById(novoProduto.getCategoria().getId());
-		CategoriaDTO categoriaDTO = new CategoriaDTO(categoria);
-
-		return paraDTO(novoProduto, categoriaDTO, categoria);
-	}
-
-	private Produto convertProdutoFromStringJson(String produtoJson) {
-		Produto produto = new Produto();
-
-		try {
-			ObjectMapper objectMapper = new ObjectMapper();
-			produto = objectMapper.readValue(produtoJson, Produto.class);
-		} catch (IOException err) {
-			System.out.printf(err.toString());
-		}
-
-		return produto;
-	}
-
-	public ProdutoDTO paraDTO(Produto entity, CategoriaDTO categoriaDTO, Categoria categoria) {
-
-		entity.setNome(entity.getNome());
-		entity.setDataCadastro(entity.getDataCadastro());
-
-		entity.setQtdEstoque(entity.getQtdEstoque());
-		entity.setValorUnitario(entity.getValorUnitario());
-
-		entity.setCategoria(entity.getCategoria());
-		entity.setImagemUrl(entity.getImagemUrl());
-		entity.setDescricao(entity.getDescricao());
-
-		categoria.setId(categoriaDTO.getId());
-		categoria.setDescricao(categoriaDTO.getDescricao());
-		categoria.setNome(categoriaDTO.getNome());
-
-		System.out.println(categoria.getId());
-
-		entity.setCategoria(categoria);
-
-		entity = produtoRepository.save(entity);
-
-		return new ProdutoDTO(entity);
-	}
-
 	/*
-	 * @Transactional
-	 * public ProdutoDTO insert(ProdutoDTO productDto) {
+	 * public ProdutoDTO insert(String produtoTxt,
+	 * MultipartFile file) throws IOException {
 	 * 
-	 * Produto entity = new Produto();
+	 * RestTemplate restTemplate = new RestTemplate();
+	 * String serverUrl = imgBBHostUrl + imgBBHostKey;
 	 * 
+	 * HttpHeaders headers = new HttpHeaders();
+	 * headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+	 * 
+	 * MultiValueMap<String, String> fileMap = new LinkedMultiValueMap<>();
+	 * 
+	 * ContentDisposition contentDisposition = ContentDisposition
+	 * .builder("form-data")
+	 * .name("image")
+	 * .filename(file.getOriginalFilename())
+	 * .build();
+	 * 
+	 * fileMap.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString());
+	 * 
+	 * HttpEntity<byte[]> fileEntity = new HttpEntity<>(file.getBytes(), fileMap);
+	 * 
+	 * MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+	 * body.add("image", fileEntity);
+	 * 
+	 * HttpEntity<MultiValueMap<String, Object>> requestEntity = new
+	 * HttpEntity<>(body, headers);
+	 * 
+	 * ResponseEntity<ImgBBDTO> response = null;
+	 * ImgBBDTO imgDTO = new ImgBBDTO();
+	 * Produto novoProduto = new Produto();
+	 * // ProdutoDTO productDTO = new ProdutoDTO();
+	 * try {
+	 * response = restTemplate.exchange(
+	 * serverUrl,
+	 * HttpMethod.POST,
+	 * requestEntity,
+	 * ImgBBDTO.class);
+	 * 
+	 * imgDTO = response.getBody();
+	 * System.out.println("ImgBBDTO: " + imgDTO.getData().toString());
+	 * } catch (HttpClientErrorException e) {
+	 * e.printStackTrace();
+	 * }
+	 * Produto produtoFromJson = convertProdutoFromStringJson(produtoTxt);
+	 * produtoFromJson.setImagemFileName(imgDTO.getData().getImage().getFilename());
+	 * produtoFromJson.setImagemNome(imgDTO.getData().getTitle());
+	 * produtoFromJson.setImagemUrl(imgDTO.getData().getUrl());
+	 * 
+	 * novoProduto = produtoRepository.save(produtoFromJson);
 	 * Categoria categoria =
-	 * categoriaRepository.getReferenceById(productDto.getCategoria().getId());
+	 * categoriaRepository.getReferenceById(novoProduto.getCategoria().getId());
+	 * CategoriaDTO categoriaDTO = new CategoriaDTO(categoria);
+	 * 
+	 * return paraDTO(novoProduto, categoriaDTO, categoria);
+	 * }
+	 * 
+	 * private Produto convertProdutoFromStringJson(String produtoJson) {
+	 * Produto produto = new Produto();
+	 * 
+	 * try {
+	 * ObjectMapper objectMapper = new ObjectMapper();
+	 * produto = objectMapper.readValue(produtoJson, Produto.class);
+	 * } catch (IOException err) {
+	 * System.out.printf(err.toString());
+	 * }
+	 * 
+	 * return produto;
+	 * }
+	 * 
+	 * public ProdutoDTO paraDTO(Produto entity, CategoriaDTO categoriaDTO,
+	 * Categoria categoria) {
+	 * 
+	 * entity.setNome(entity.getNome());
+	 * entity.setDataCadastro(entity.getDataCadastro());
+	 * 
+	 * entity.setQtdEstoque(entity.getQtdEstoque());
+	 * entity.setValorUnitario(entity.getValorUnitario());
+	 * 
+	 * entity.setCategoria(entity.getCategoria());
+	 * entity.setImagemUrl(entity.getImagemUrl());
+	 * entity.setDescricao(entity.getDescricao());
+	 * 
+	 * categoria.setId(categoriaDTO.getId());
+	 * categoria.setDescricao(categoriaDTO.getDescricao());
+	 * categoria.setNome(categoriaDTO.getNome());
+	 * 
+	 * System.out.println(categoria.getId());
 	 * 
 	 * entity.setCategoria(categoria);
 	 * 
-	 * copyDtoToEntity(productDto, entity);
 	 * entity = produtoRepository.save(entity);
+	 * 
 	 * return new ProdutoDTO(entity);
 	 * }
 	 */
+
+	@Transactional
+	public ProdutoDTO insert(ProdutoDTO productDto) {
+
+		Produto entity = new Produto();
+
+		Categoria categoria = categoriaRepository.getReferenceById(productDto.getCategoria().getId());
+
+		entity.setCategoria(categoria);
+
+		copyDtoToEntity(productDto, entity);
+		entity = produtoRepository.save(entity);
+		return new ProdutoDTO(entity);
+	}
+
 	public ProdutoDTO update(ProdutoDTO productDto, Long id) {
 
 		try {
@@ -221,8 +211,9 @@ public class ProdutoService {
 		entity.setDataCadastro(productDto.getDataCadastro());
 		entity.setQtdEstoque(productDto.getQtdEstoque());
 		entity.setValorUnitario(productDto.getValorUnitario());
+		entity.setDescricao(productDto.getDescricao());
 		entity.setCategoria(entity.getCategoria());
-		entity.setImagemUrl(entity.getImagemUrl());
+		entity.setImagemUrl(productDto.getImagemUrl());
 		entity.setDescricao(entity.getDescricao());
 	}
 

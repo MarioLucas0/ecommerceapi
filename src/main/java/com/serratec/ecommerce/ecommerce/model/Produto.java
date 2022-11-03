@@ -31,11 +31,13 @@ public class Produto {
 	private Date dataCadastro;
 	@Positive
 	private Double valorUnitario;
-	@Column(name = "imagem_nome")
-	private String imagemNome;
-
-	@Column(name = "imagem_filename")
-	private String imagemFileName;
+	/*
+	 * @Column(name = "imagem_nome")
+	 * private String imagemNome;
+	 * 
+	 * @Column(name = "imagem_filename")
+	 * private String imagemFileName;
+	 */
 
 	@Column(name = "imagem_url")
 	private String imagemUrl;
@@ -51,15 +53,13 @@ public class Produto {
 	}
 
 	public Produto(Long id, String nome, String descricao, Integer qtdEstoque, Date dataCadastro, Double valorUnitario,
-			String imagemNome, String imagemFileName, String imagemUrl, Categoria categoria, Set<ItemPedido> items) {
+			String imagemUrl, Categoria categoria, Set<ItemPedido> items) {
 		this.id = id;
 		this.nome = nome;
 		this.descricao = descricao;
 		this.qtdEstoque = qtdEstoque;
 		this.dataCadastro = dataCadastro;
 		this.valorUnitario = valorUnitario;
-		this.imagemNome = imagemNome;
-		this.imagemFileName = imagemFileName;
 		this.imagemUrl = imagemUrl;
 		this.categoria = categoria;
 		this.items = items;
@@ -113,21 +113,23 @@ public class Produto {
 		this.valorUnitario = valorUnitario;
 	}
 
-	public String getImagemNome() {
-		return imagemNome;
-	}
-
-	public void setImagemNome(String imagemNome) {
-		this.imagemNome = imagemNome;
-	}
-
-	public String getImagemFileName() {
-		return imagemFileName;
-	}
-
-	public void setImagemFileName(String imagemFileName) {
-		this.imagemFileName = imagemFileName;
-	}
+	/*
+	 * public String getImagemNome() {
+	 * return imagemNome;
+	 * }
+	 * 
+	 * public void setImagemNome(String imagemNome) {
+	 * this.imagemNome = imagemNome;
+	 * }
+	 * 
+	 * public String getImagemFileName() {
+	 * return imagemFileName;
+	 * }
+	 * 
+	 * public void setImagemFileName(String imagemFileName) {
+	 * this.imagemFileName = imagemFileName;
+	 * }
+	 */
 
 	public String getImagemUrl() {
 		return imagemUrl;

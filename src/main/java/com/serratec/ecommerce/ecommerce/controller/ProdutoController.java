@@ -18,9 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.serratec.ecommerce.ecommerce.dto.ProdutoDTO;
@@ -78,10 +76,9 @@ public class ProdutoController {
 
   })
 
-  public ResponseEntity<ProdutoDTO> insert(@Valid @RequestPart("produto") String produtoTxt,
-      @RequestPart("filename") MultipartFile file) throws IOException {
+  public ResponseEntity<ProdutoDTO> insert(@Valid @RequestBody ProdutoDTO productDto) throws IOException {
 
-    ProdutoDTO produtoDTO = produtoService.insert(produtoTxt, file);
+    ProdutoDTO produtoDTO = produtoService.insert(productDto);
 
     URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(produtoDTO.getId())
         .toUri();
