@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,9 +25,8 @@ import com.serratec.ecommerce.ecommerce.service.ProdutoService;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
-@SecurityRequirement(name = "Bearer Authentication")
+//@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequestMapping(value = "/produtos")
 public class ProdutoController {
@@ -67,7 +65,7 @@ public class ProdutoController {
         HttpStatus.OK);
   }
 
-  @PostMapping(value = "/insert", consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
+  @PostMapping
   @ApiResponses(value = {
       @ApiResponse(responseCode = "403", description = "Você não tem permissão para o recurso"),
       @ApiResponse(responseCode = "422", description = "Categoria não encontrada ou arquivo invalido"),
