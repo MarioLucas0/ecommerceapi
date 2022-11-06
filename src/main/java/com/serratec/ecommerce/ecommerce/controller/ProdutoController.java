@@ -25,10 +25,12 @@ import com.serratec.ecommerce.ecommerce.service.ProdutoService;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 //@SecurityRequirement(name = "Bearer Authentication")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
-@RequestMapping(value = "/produtos")
+@RequestMapping(value = "/produto")
 public class ProdutoController {
 
   @Autowired
