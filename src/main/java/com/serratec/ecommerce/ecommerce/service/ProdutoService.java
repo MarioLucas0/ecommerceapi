@@ -167,6 +167,10 @@ public class ProdutoService {
 
 		Categoria categoria = categoriaRepository.getReferenceById(productDto.getCategoria().getId());
 
+		categoria.setId(categoria.getId());
+		categoria.setDescricao(categoria.getDescricao());
+		categoria.setNome(categoria.getNome());
+
 		entity.setCategoria(categoria);
 
 		copyDtoToEntity(productDto, entity);
@@ -214,6 +218,7 @@ public class ProdutoService {
 		entity.setDescricao(productDto.getDescricao());
 		entity.setCategoria(entity.getCategoria());
 		entity.setImagemUrl(productDto.getImagemUrl());
+		entity.setImagemUrl(entity.getImagemUrl());
 		entity.setDescricao(entity.getDescricao());
 	}
 
