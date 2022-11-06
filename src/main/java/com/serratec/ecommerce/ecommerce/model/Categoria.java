@@ -21,7 +21,7 @@ public class Categoria {
   private Long id;
   @NotBlank
   private String nome;
-  @Size(min = 7, max = 1000)
+  @Size(min = 3, max = 1000)
   private String descricao;
   @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
   private List<Produto> produto = new ArrayList<>();
